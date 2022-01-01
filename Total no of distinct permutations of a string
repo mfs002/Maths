@@ -1,0 +1,77 @@
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+
+// Given a string of length N. Calculate total no of distinct permutations of string modulo 1e9+7
+// N <= 1e6
+
+// Time Complexity = O(26) per test case
+// Precomputation T.C = O(maxn)
+
+const int mod = 1e9 + 7, maxn = 1e6 + 3;
+int fact[maxn];
+int inverse_fact[maxn];
+
+int add (int x, int y) {int res = x + y; return (res >= mod ? res - mod : res);}
+int sub (int x, int y) {int res = x - y; return (res < 0 ? res + mod : res);}
+int mul (int x, int y) {int res = x * y; return (res >= mod ? res % mod : res);}
+
+int power (int x, int y) {
+
+    int res = 1; x %= mod;
+
+    while (y) { if (y & 1) res = mul(res, x); y >>= 1; x = mul(x, x);} return res;
+}
+
+int modInverse (int x) {return power(x, mod - 2);}
+
+void precompute()
+{
+    fact[1] = 1;
+    for (int i = 2; i < maxn; i++)
+    {
+        fact[i] = mul(fact[i - 1], i);
+    }
+
+    inverse_fact[maxn - 1] = modInverse(fact[maxn - 1]);       // O(log maxn)
+
+    for (int i = maxn - 2; i >= 0; i--)
+    {
+        inverse_fact[i] = ((i + 1) * inverse_fact[i + 1]) % mod;
+    }
+}
+
+signed main()
+{
+    precompute();
+    int t; cin >> t;
+    while (t--)
+    {
+        string s; cin >> s; int n = s.length();
+
+        int freq[26] = {0};
+
+        for (int i = 0; i < n; i++) freq[s[i] - 'a']++;
+
+        int ans = fact[n];
+
+        for (int i = 0; i < 26; i++)
+        {
+            if (freq[i] != 0) ans = mul(ans, inverse_fact[freq[i]]);
+        }
+
+        cout << ans << '\n';
+    }
+}
+
+
+/* Input
+2
+aab
+ybghjhbuytb
+*/
+
+/* Output
+3
+1663200
+*/
